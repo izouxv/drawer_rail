@@ -60,7 +60,7 @@ class DrawerRailTheme {
     this.groupOuterPadding = const EdgeInsets.only(bottom: 2),
     this.groupPadding,
     this.groupHeight,
-    this.groupArrowIconSize = 20,
+    this.groupArrowIconSize = 24,
     this.groupChildIndent = 24,
     this.backgroundColor,
     this.selectedColor,
