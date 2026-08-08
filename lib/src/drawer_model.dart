@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
 
+/// Builds an app-owned representation for a [DrawerLink] in the expanded
+/// panel.
+typedef DrawerLinkExpandedBuilder = Widget Function(
+  BuildContext context,
+  bool selected,
+);
+
+/// Builds an app-owned representation for a [DrawerLink] in the collapsed
+/// rail.
+typedef DrawerLinkCollapsedBuilder = Widget Function(
+  BuildContext context,
+  bool selected,
+);
+
+/// Controls where a [DrawerGroup] renders its disclosure arrow.
+enum DrawerGroupArrowPlacement {
+  /// Renders the arrow immediately after the group label.
+  afterLabel,
+
+  /// Renders the arrow at the trailing edge of the group header.
+  trailing,
+}
+
+/// Builds optional app-owned content at the end of a [DrawerGroup] header.
+typedef DrawerGroupTrailingBuilder = Widget? Function(
+  BuildContext context,
+  bool expanded,
+);
+
 /// A badge shown on a drawer entry.
 ///
 /// A badge is either a short text label — for example `"New"` — created with
@@ -74,6 +103,9 @@ class DrawerLink extends DrawerEntry {
     required this.onTap,
     this.badge,
     this.danger = false,
+    this.selectOnTap = true,
+    this.expandedBuilder,
+    this.collapsedBuilder,
   });
 
   /// A stable, unique identifier used for selection highlighting.
@@ -94,6 +126,15 @@ class DrawerLink extends DrawerEntry {
   /// Whether this link uses destructive styling (e.g. "Sign out"), tinting the
   /// icon and label with the error color.
   final bool danger;
+
+  /// Whether the drawer selects this link before calling [onTap].
+  final bool selectOnTap;
+
+  /// Optional app-owned representation in the expanded panel.
+  final DrawerLinkExpandedBuilder? expandedBuilder;
+
+  /// Optional app-owned representation in the collapsed rail.
+  final DrawerLinkCollapsedBuilder? collapsedBuilder;
 }
 
 /// An expandable group of [DrawerLink]s, for example `"Reports"` containing
@@ -105,17 +146,24 @@ class DrawerGroup extends DrawerEntry {
   /// Creates a group entry with the given [children].
   const DrawerGroup({
     required this.id,
-    required this.icon,
     required this.label,
     required this.children,
+    this.icon,
+    this.collapsedIcon,
     this.badge,
+    this.key,
+    this.arrowPlacement = DrawerGroupArrowPlacement.trailing,
+    this.trailingBuilder,
   });
 
   /// A stable, unique identifier for this group.
   final String id;
 
-  /// The leading icon.
-  final IconData icon;
+  /// Optional icon before the label in the expanded panel.
+  final IconData? icon;
+
+  /// Optional icon in the collapsed rail. Falls back to [icon].
+  final IconData? collapsedIcon;
 
   /// The visible label.
   final String label;
@@ -125,4 +173,13 @@ class DrawerGroup extends DrawerEntry {
 
   /// An optional badge shown at the trailing edge of the group header.
   final DrawerBadge? badge;
+
+  /// Optional key applied to the expanded group header.
+  final Key? key;
+
+  /// Placement of the disclosure arrow in the expanded group header.
+  final DrawerGroupArrowPlacement arrowPlacement;
+
+  /// Optional app-owned content at the trailing edge of the group header.
+  final DrawerGroupTrailingBuilder? trailingBuilder;
 }

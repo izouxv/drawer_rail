@@ -1,4 +1,5 @@
 import 'package:drawer_rail/drawer_rail.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -221,6 +222,134 @@ void main() {
       expect(find.text('MAIN'), findsNothing);
     });
 
+    testWidgets('supports app-owned link content and group trailing content',
+        (tester) async {
+      controller.toggleGroup('sources');
+      var tailTaps = 0;
+      await tester.pumpWidget(
+        _wrap(
+          DrawerRail(
+            controller: controller,
+            showSearch: false,
+            showCollapseButton: false,
+            entries: [
+              DrawerGroup(
+                id: 'sources',
+                key: const ValueKey('sources-group'),
+                label: 'Sources',
+                arrowPlacement: DrawerGroupArrowPlacement.afterLabel,
+                trailingBuilder: (_, __) => IconButton(
+                  key: const ValueKey('add-source'),
+                  onPressed: () => tailTaps++,
+                  icon: const Icon(Icons.add),
+                ),
+                children: [
+                  DrawerLink(
+                    id: 'source-a',
+                    icon: Icons.storage_outlined,
+                    label: 'Source A',
+                    onTap: (_) {},
+                    expandedBuilder: (_, selected) => Text(
+                      'Custom source: $selected',
+                      key: const ValueKey('custom-source-row'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('sources-group')), findsOneWidget);
+      expect(find.byKey(const ValueKey('add-source')), findsOneWidget);
+      expect(find.byKey(const ValueKey('custom-source-row')), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('add-source')));
+      await tester.pump();
+
+      expect(tailTaps, 1);
+      expect(controller.isGroupExpanded('sources'), isTrue);
+    });
+
+    testWidgets('uses the same configured highlight for links and groups',
+        (tester) async {
+      const highlight = Colors.red;
+      await tester.pumpWidget(
+        _wrap(
+          DrawerRail(
+            controller: controller,
+            showSearch: false,
+            showCollapseButton: false,
+            theme: const DrawerRailTheme(
+              hoverEffect: DrawerHoverEffect.highlight,
+              hoverHighlightColor: highlight,
+              groupOuterPadding: EdgeInsets.symmetric(horizontal: 4),
+              groupPadding: EdgeInsets.symmetric(horizontal: 12),
+              groupHeight: 32,
+              groupLabelTextStyle: TextStyle(fontSize: 15),
+            ),
+            entries: [
+              DrawerLink(
+                id: 'home',
+                icon: Icons.home_outlined,
+                label: 'Home',
+                onTap: (_) {},
+              ),
+              const DrawerGroup(
+                id: 'sources',
+                key: ValueKey('hoverable-group'),
+                label: 'Sources',
+                children: [],
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(
+        tester.getSize(find.byKey(const ValueKey('hoverable-group'))).height,
+        32,
+      );
+
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer();
+      await mouse.moveTo(tester.getCenter(find.text('Home')));
+      await tester.pump(const Duration(milliseconds: 220));
+      expect(_hasAnimatedFill(tester, highlight), isTrue);
+
+      await mouse.moveTo(
+        tester.getCenter(find.byKey(const ValueKey('hoverable-group'))),
+      );
+      await tester.pump(const Duration(milliseconds: 220));
+      expect(_hasAnimatedFill(tester, highlight), isTrue);
+    });
+
+    testWidgets('can defer selection until app navigation succeeds',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          DrawerRail(
+            controller: controller,
+            entries: [
+              DrawerLink(
+                id: 'remote',
+                icon: Icons.cloud_outlined,
+                label: 'Remote',
+                selectOnTap: false,
+                onTap: (_) {},
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Remote'));
+      await tester.pumpAndSettle();
+
+      expect(controller.selectedId, isNull);
+    });
+
     // Finds the drawer's own outer container: the one whose border radius has
     // a single rounded side (the AnimatedPressCard containers round all sides).
     BorderRadius drawerEdgeRadius(WidgetTester tester) {
@@ -276,3 +405,10 @@ void main() {
     });
   });
 }
+
+bool _hasAnimatedFill(WidgetTester tester, Color color) => tester
+        .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
+        .any((container) {
+      final decoration = container.decoration;
+      return decoration is BoxDecoration && decoration.color == color;
+    });

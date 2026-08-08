@@ -61,6 +61,7 @@ class DrawerRail extends StatefulWidget {
     this.showSearch = true,
     this.showCollapseButton = true,
     this.showFooterDivider = true,
+    this.useSafeArea = true,
     this.headerBuilder,
     this.footerBuilder,
     this.searchDecoration,
@@ -89,6 +90,10 @@ class DrawerRail extends StatefulWidget {
 
   /// Whether to draw a divider above the footer. Defaults to `true`.
   final bool showFooterDivider;
+
+  /// Whether the drawer should avoid system insets. Set this to `false` when
+  /// the surrounding desktop shell already owns the safe area.
+  final bool useSafeArea;
 
   /// Optional content shown above the search field (for example a user
   /// profile). Rebuilt whenever the collapsed state changes.
@@ -177,8 +182,8 @@ class _DrawerRailState extends State<DrawerRail> {
               width: width,
               child: Material(
                 type: MaterialType.transparency,
-                child: SafeArea(
-                  child: Column(
+                child: _safeArea(
+                  Column(
                     children: [
                       _buildHeader(collapsed, theme),
                       if (widget.showSearch) _buildSearch(collapsed, theme),
@@ -198,6 +203,9 @@ class _DrawerRailState extends State<DrawerRail> {
     );
   }
 
+  Widget _safeArea(Widget child) =>
+      widget.useSafeArea ? SafeArea(child: child) : child;
+
   // ---- Header --------------------------------------------------------------
 
   Widget _buildHeader(bool collapsed, ResolvedDrawerRailTheme theme) {
@@ -208,7 +216,7 @@ class _DrawerRailState extends State<DrawerRail> {
 
     if (collapsed) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: theme.headerPadding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -225,7 +233,7 @@ class _DrawerRailState extends State<DrawerRail> {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+      padding: theme.headerPadding,
       child: Row(
         children: [
           if (header != null) Expanded(child: header) else const Spacer(),
@@ -251,8 +259,9 @@ class _DrawerRailState extends State<DrawerRail> {
           icon: Icon(theme.searchIcon),
           onPressed: () {
             _controller.setCollapsed(false);
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => _searchFocus.requestFocus());
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _searchFocus.requestFocus(),
+            );
           },
         ),
       );
@@ -371,6 +380,15 @@ class _DrawerRailState extends State<DrawerRail> {
     ResolvedDrawerRailTheme theme, {
     required bool indent,
   }) {
+    if (link.expandedBuilder != null) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: 2,
+          left: indent ? theme.groupChildIndent : 0,
+        ),
+        child: link.expandedBuilder!(context, isSelected),
+      );
+    }
     final tint = link.danger ? theme.errorColor : theme.labelColor;
     final fg = isSelected ? theme.onSelectedColor : tint;
     final baseStyle =
@@ -420,10 +438,19 @@ class _DrawerRailState extends State<DrawerRail> {
     ResolvedDrawerRailTheme theme,
   ) {
     final open = _controller.isGroupExpanded(group.id);
+    final trailing = group.trailingBuilder?.call(context, open);
+    final arrow = AnimatedSwitcher(
+      duration: theme.groupAnimationDuration,
+      child: Icon(
+        open ? theme.groupTrailingIcon : theme.groupCollapsedIcon,
+        key: ValueKey(open),
+        color: theme.surfaceVariantColor,
+      ),
+    );
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 2),
+          padding: theme.groupOuterPadding,
           child: AnimatedPressCard(
             onTap: () => _controller.toggleGroup(group.id),
             pressedScale: theme.pressedScale,
@@ -431,38 +458,53 @@ class _DrawerRailState extends State<DrawerRail> {
             hoverShadowColor: theme.hoverShadowColor,
             hoverHighlightColor: theme.hoverHighlightColor,
             surfaceColor: theme.backgroundColor,
-            borderRadius:
-                BorderRadius.all(Radius.circular(theme.itemBorderRadius)),
-            child: Container(
-              padding: theme.itemPadding,
-              child: Row(
-                children: [
-                  Icon(
-                    group.icon,
-                    size: theme.iconSize,
-                    color: theme.iconColor,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      group.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.labelTextStyle.copyWith(
-                        color: theme.labelColor,
+            borderRadius: BorderRadius.all(
+              Radius.circular(theme.itemBorderRadius),
+            ),
+            child: SizedBox(
+              height: theme.groupHeight,
+              child: Container(
+                key: group.key,
+                padding: theme.groupPadding,
+                child: Row(
+                  children: [
+                    if (group.icon != null) ...[
+                      Icon(
+                        group.icon,
+                        size: theme.iconSize,
+                        color: theme.iconColor,
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              group.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.groupLabelTextStyle.copyWith(
+                                color: theme.labelColor,
+                              ),
+                            ),
+                          ),
+                          if (group.arrowPlacement ==
+                              DrawerGroupArrowPlacement.afterLabel) ...[
+                            const SizedBox(width: 4),
+                            arrow,
+                          ],
+                        ],
                       ),
                     ),
-                  ),
-                  if (group.badge != null) _badge(group.badge!, false, theme),
-                  AnimatedRotation(
-                    turns: open ? 0.5 : 0,
-                    duration: theme.groupAnimationDuration,
-                    child: Icon(
-                      theme.groupTrailingIcon,
-                      color: theme.surfaceVariantColor,
-                    ),
-                  ),
-                ],
+                    if (group.badge != null) _badge(group.badge!, false, theme),
+                    if (trailing != null) trailing,
+                    if (group.arrowPlacement ==
+                        DrawerGroupArrowPlacement.trailing)
+                      arrow,
+                  ],
+                ),
               ),
             ),
           ),
@@ -490,6 +532,9 @@ class _DrawerRailState extends State<DrawerRail> {
     bool isSelected,
     ResolvedDrawerRailTheme theme,
   ) {
+    if (link.collapsedBuilder != null) {
+      return link.collapsedBuilder!(context, isSelected);
+    }
     return _RailButton(
       icon: link.icon,
       tooltip: link.label,
@@ -514,20 +559,24 @@ class _DrawerRailState extends State<DrawerRail> {
             borderRadius: BorderRadius.circular(theme.itemBorderRadius),
           ),
         ),
-        padding:
-            const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 4)),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(vertical: 4),
+        ),
       ),
       menuChildren: [
         for (final child in group.children)
           MenuItemButton(
-            leadingIcon:
-                Icon(child.icon, size: theme.iconSize, color: theme.iconColor),
+            leadingIcon: Icon(
+              child.icon,
+              size: theme.iconSize,
+              color: theme.iconColor,
+            ),
             onPressed: () => _openLink(child),
             child: Text(child.label),
           ),
       ],
       builder: (context, menu, _) => _RailButton(
-        icon: group.icon,
+        icon: group.collapsedIcon ?? group.icon ?? Icons.folder_outlined,
         tooltip: group.label,
         selected: group.children.any((c) => c.id == selected),
         theme: theme,
@@ -563,7 +612,7 @@ class _DrawerRailState extends State<DrawerRail> {
   }
 
   void _openLink(DrawerLink link) {
-    _controller.select(link.id);
+    if (link.selectOnTap) _controller.select(link.id);
     link.onTap(context);
   }
 }
@@ -606,8 +655,9 @@ class _RailButton extends StatelessWidget {
           hoverShadowColor: theme.hoverShadowColor,
           hoverHighlightColor: theme.hoverHighlightColor,
           surfaceColor: theme.backgroundColor,
-          borderRadius:
-              BorderRadius.all(Radius.circular(theme.itemBorderRadius)),
+          borderRadius: BorderRadius.all(
+            Radius.circular(theme.itemBorderRadius),
+          ),
           child: Container(
             height: theme.railItemHeight,
             decoration: BoxDecoration(

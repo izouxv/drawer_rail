@@ -198,6 +198,9 @@ DrawerRail(
     railItemHeight: 48,
     contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     itemPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    groupOuterPadding: EdgeInsets.symmetric(horizontal: 4),
+    groupPadding: EdgeInsets.symmetric(horizontal: 12),
+    groupHeight: 32,
     groupChildIndent: 28,
     position: DrawerRailPosition.left, // or .right
 
@@ -216,6 +219,7 @@ DrawerRail(
 
     // Text styles (label color is applied automatically per state)
     labelTextStyle: TextStyle(fontWeight: FontWeight.w600),
+    groupLabelTextStyle: TextStyle(fontWeight: FontWeight.w600),
     sectionTextStyle: TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
     badgeTextStyle: TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
     sectionUppercase: true,
@@ -226,6 +230,7 @@ DrawerRail(
     searchIcon: Icons.search_rounded,
     clearSearchIcon: Icons.close_rounded,
     groupTrailingIcon: Icons.keyboard_arrow_down_rounded,
+    groupCollapsedIcon: Icons.keyboard_arrow_right_rounded,
 
     // Animation
     animationDuration: Duration(milliseconds: 240),
@@ -241,11 +246,11 @@ DrawerRail(
 | Group      | Fields |
 | ---------- | ------ |
 | **Sizing** | `expandedWidth`, `railWidth`, `railItemHeight`, `iconSize`, `railIconSize`, `borderRadius`, `itemBorderRadius` |
-| **Spacing**| `contentPadding`, `itemPadding`, `groupChildIndent` |
+| **Spacing**| `contentPadding`, `headerPadding`, `itemPadding`, `groupOuterPadding`, `groupPadding`, `groupHeight`, `groupChildIndent` |
 | **Colors** | `backgroundColor`, `selectedColor`, `onSelectedColor`, `iconColor`, `labelColor`, `sectionColor`, `badgeTextColor`, `badgeCountColor`, `menuBackgroundColor`, `searchFillColor`, `shadow` |
 | **Hover**  | `hoverEffect` (`shadow` / `highlight` / `none`), `hoverShadowColor`, `hoverHighlightColor` |
-| **Text**   | `labelTextStyle`, `selectedLabelTextStyle`, `sectionTextStyle`, `badgeTextStyle`, `sectionUppercase` |
-| **Icons**  | `collapseIcon`, `expandIcon`, `searchIcon`, `clearSearchIcon`, `groupTrailingIcon` |
+| **Text**   | `labelTextStyle`, `groupLabelTextStyle`, `selectedLabelTextStyle`, `sectionTextStyle`, `badgeTextStyle`, `sectionUppercase` |
+| **Icons**  | `collapseIcon`, `expandIcon`, `searchIcon`, `clearSearchIcon`, `groupTrailingIcon`, `groupCollapsedIcon` |
 | **Motion** | `animationDuration`, `animationCurve`, `groupAnimationDuration`, `pressedScale` |
 | **Layout** | `position` (`left` / `right`) |
 
@@ -258,6 +263,7 @@ Beyond the theme, `DrawerRail` itself exposes toggles and slots:
 | `showSearch` | Show/hide the built-in search. |
 | `showCollapseButton` | Show/hide the collapse/expand toggle. |
 | `showFooterDivider` | Draw a divider above the footer. |
+| `useSafeArea` | Let the drawer own system insets; disable it when a desktop shell already does. |
 | `headerBuilder` / `footerBuilder` | Fully custom header/footer per state. |
 | `searchDecoration` | Replace the search field's `InputDecoration`. |
 | `labels` | Localize every built-in string (see below). |

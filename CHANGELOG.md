@@ -2,6 +2,15 @@
 
 <!-- Add upcoming changes under a new "## Unreleased" heading. -->
 
+## 0.3.0
+
+- Add app-owned expanded and collapsed link builders, deferred selection, and
+  configurable group disclosure and trailing content.
+- Add group-specific spacing, height and label-style theme configuration so a
+  group header can align with an application's existing list rows.
+- Add optional safe-area and header-padding controls for embedding a drawer in
+  a desktop shell.
+
 ## 0.2.0
 
 - Add `DrawerRailTheme.hoverEffect` (`DrawerHoverEffect.shadow` / `.highlight` /

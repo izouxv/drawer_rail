@@ -49,9 +49,15 @@ class DrawerRailTheme {
     this.railItemHeight = 44,
     this.pressedScale = 0.97,
     this.sectionUppercase = true,
-    this.contentPadding =
-        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 8,
+      vertical: 4,
+    ),
+    this.headerPadding = const EdgeInsets.fromLTRB(16, 12, 8, 8),
     this.itemPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.groupOuterPadding = const EdgeInsets.only(bottom: 2),
+    this.groupPadding,
+    this.groupHeight,
     this.groupChildIndent = 24,
     this.backgroundColor,
     this.selectedColor,
@@ -68,6 +74,7 @@ class DrawerRailTheme {
     this.hoverHighlightColor,
     this.shadow,
     this.labelTextStyle,
+    this.groupLabelTextStyle,
     this.selectedLabelTextStyle,
     this.sectionTextStyle,
     this.badgeTextStyle,
@@ -76,6 +83,7 @@ class DrawerRailTheme {
     this.searchIcon = Icons.search_rounded,
     this.clearSearchIcon = Icons.close_rounded,
     this.groupTrailingIcon = Icons.keyboard_arrow_down_rounded,
+    this.groupCollapsedIcon = Icons.keyboard_arrow_right_rounded,
   });
 
   /// The width of the drawer when expanded. Defaults to `300`.
@@ -121,8 +129,21 @@ class DrawerRailTheme {
   /// Padding around the scrolling menu list.
   final EdgeInsetsGeometry contentPadding;
 
+  /// Padding around the optional header and built-in collapse button.
+  final EdgeInsetsGeometry headerPadding;
+
   /// Inner padding of each link/group tile in the expanded panel.
   final EdgeInsetsGeometry itemPadding;
+
+  /// Margin around an expanded group header. Use this to align a group with
+  /// app-owned link rows that add their own outer inset.
+  final EdgeInsetsGeometry groupOuterPadding;
+
+  /// Inner padding of an expanded group header. Falls back to [itemPadding].
+  final EdgeInsetsGeometry? groupPadding;
+
+  /// Optional fixed height for an expanded group header.
+  final double? groupHeight;
 
   /// The left indentation of a group's child links in the expanded panel.
   final double groupChildIndent;
@@ -187,6 +208,10 @@ class DrawerRailTheme {
   /// (selected / danger). Defaults to a semi-bold body style.
   final TextStyle? labelTextStyle;
 
+  /// Optional text style for expanded group labels. Falls back to
+  /// [labelTextStyle].
+  final TextStyle? groupLabelTextStyle;
+
   /// Text style for the label of the selected item. Falls back to
   /// [labelTextStyle] when null. The color defaults to [onSelectedColor].
   final TextStyle? selectedLabelTextStyle;
@@ -211,6 +236,9 @@ class DrawerRailTheme {
 
   /// The trailing chevron of an expandable group in the expanded panel.
   final IconData groupTrailingIcon;
+
+  /// The disclosure icon shown while an expandable group is closed.
+  final IconData groupCollapsedIcon;
 
   /// Returns a copy of this theme resolved against [scheme], filling every
   /// nullable value with its default so the widgets can read non-null values.
@@ -238,7 +266,11 @@ class DrawerRailTheme {
       pressedScale: pressedScale,
       sectionUppercase: sectionUppercase,
       contentPadding: contentPadding,
+      headerPadding: headerPadding,
       itemPadding: itemPadding,
+      groupOuterPadding: groupOuterPadding,
+      groupPadding: groupPadding ?? itemPadding,
+      groupHeight: groupHeight,
       groupChildIndent: groupChildIndent,
       backgroundColor: backgroundColor ?? scheme.surface,
       selectedColor: resolvedSelected,
@@ -260,6 +292,7 @@ class DrawerRailTheme {
       hoverHighlightColor:
           hoverHighlightColor ?? scheme.primary.withValues(alpha: 0.08),
       labelTextStyle: baseLabel,
+      groupLabelTextStyle: groupLabelTextStyle ?? baseLabel,
       selectedLabelTextStyle: selectedLabelTextStyle ?? baseLabel,
       sectionTextStyle: (sectionTextStyle ??
               const TextStyle(
@@ -275,6 +308,7 @@ class DrawerRailTheme {
       searchIcon: searchIcon,
       clearSearchIcon: clearSearchIcon,
       groupTrailingIcon: groupTrailingIcon,
+      groupCollapsedIcon: groupCollapsedIcon,
       shadow: shadow ??
           [
             BoxShadow(
@@ -309,7 +343,11 @@ class ResolvedDrawerRailTheme {
     required this.pressedScale,
     required this.sectionUppercase,
     required this.contentPadding,
+    required this.headerPadding,
     required this.itemPadding,
+    required this.groupOuterPadding,
+    required this.groupPadding,
+    required this.groupHeight,
     required this.groupChildIndent,
     required this.backgroundColor,
     required this.selectedColor,
@@ -329,6 +367,7 @@ class ResolvedDrawerRailTheme {
     required this.hoverShadowColor,
     required this.hoverHighlightColor,
     required this.labelTextStyle,
+    required this.groupLabelTextStyle,
     required this.selectedLabelTextStyle,
     required this.sectionTextStyle,
     required this.badgeTextStyle,
@@ -337,6 +376,7 @@ class ResolvedDrawerRailTheme {
     required this.searchIcon,
     required this.clearSearchIcon,
     required this.groupTrailingIcon,
+    required this.groupCollapsedIcon,
     required this.shadow,
   });
 
@@ -382,8 +422,20 @@ class ResolvedDrawerRailTheme {
   /// See [DrawerRailTheme.contentPadding].
   final EdgeInsetsGeometry contentPadding;
 
+  /// See [DrawerRailTheme.headerPadding].
+  final EdgeInsetsGeometry headerPadding;
+
   /// See [DrawerRailTheme.itemPadding].
   final EdgeInsetsGeometry itemPadding;
+
+  /// See [DrawerRailTheme.groupOuterPadding].
+  final EdgeInsetsGeometry groupOuterPadding;
+
+  /// See [DrawerRailTheme.groupPadding].
+  final EdgeInsetsGeometry groupPadding;
+
+  /// See [DrawerRailTheme.groupHeight].
+  final double? groupHeight;
 
   /// See [DrawerRailTheme.groupChildIndent].
   final double groupChildIndent;
@@ -442,6 +494,9 @@ class ResolvedDrawerRailTheme {
   /// The resolved base label style (color applied per state).
   final TextStyle labelTextStyle;
 
+  /// The resolved group-label style.
+  final TextStyle groupLabelTextStyle;
+
   /// The resolved selected-label style (color applied per state).
   final TextStyle selectedLabelTextStyle;
 
@@ -465,6 +520,9 @@ class ResolvedDrawerRailTheme {
 
   /// See [DrawerRailTheme.groupTrailingIcon].
   final IconData groupTrailingIcon;
+
+  /// See [DrawerRailTheme.groupCollapsedIcon].
+  final IconData groupCollapsedIcon;
 
   /// The resolved drawer shadow.
   final List<BoxShadow> shadow;
