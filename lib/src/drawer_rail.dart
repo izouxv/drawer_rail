@@ -553,6 +553,22 @@ class _DrawerRailState extends State<DrawerRail> {
     String? selected,
     ResolvedDrawerRailTheme theme,
   ) {
+    final collapsedBuilder = group.collapsedBuilder;
+    if (collapsedBuilder != null) {
+      final open = _controller.isGroupExpanded(group.id);
+      return Column(
+        children: [
+          collapsedBuilder(
+            context,
+            open,
+            () => _controller.toggleGroup(group.id),
+          ),
+          if (open)
+            for (final child in group.children)
+              _railLink(child, selected == child.id, theme),
+        ],
+      );
+    }
     return MenuAnchor(
       style: MenuStyle(
         backgroundColor: WidgetStatePropertyAll(theme.menuBackgroundColor),

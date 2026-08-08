@@ -29,6 +29,17 @@ typedef DrawerGroupTrailingBuilder = Widget? Function(
   bool expanded,
 );
 
+/// Builds an app-owned representation for a [DrawerGroup] in the collapsed
+/// rail.
+///
+/// The supplied callback toggles the group's inline child list. Hosts can use
+/// this to keep a compact icon list instead of the default flyout menu.
+typedef DrawerGroupCollapsedBuilder = Widget Function(
+  BuildContext context,
+  bool expanded,
+  VoidCallback onToggle,
+);
+
 /// A badge shown on a drawer entry.
 ///
 /// A badge is either a short text label — for example `"New"` — created with
@@ -140,8 +151,9 @@ class DrawerLink extends DrawerEntry {
 /// An expandable group of [DrawerLink]s, for example `"Reports"` containing
 /// several report screens.
 ///
-/// When the drawer is expanded the group expands inline; when the drawer is
-/// collapsed to the rail the group opens as a flyout menu anchored to its icon.
+/// When the drawer is expanded the group expands inline. In the collapsed rail
+/// it opens as an icon-anchored flyout by default, or uses [collapsedBuilder]
+/// to render an app-owned inline representation.
 class DrawerGroup extends DrawerEntry {
   /// Creates a group entry with the given [children].
   const DrawerGroup({
@@ -154,6 +166,7 @@ class DrawerGroup extends DrawerEntry {
     this.key,
     this.arrowPlacement = DrawerGroupArrowPlacement.trailing,
     this.trailingBuilder,
+    this.collapsedBuilder,
   });
 
   /// A stable, unique identifier for this group.
@@ -182,4 +195,10 @@ class DrawerGroup extends DrawerEntry {
 
   /// Optional app-owned content at the trailing edge of the group header.
   final DrawerGroupTrailingBuilder? trailingBuilder;
+
+  /// Optional app-owned representation in the collapsed rail.
+  ///
+  /// When provided, tapping the supplied callback toggles [children] inline
+  /// instead of opening the default flyout menu.
+  final DrawerGroupCollapsedBuilder? collapsedBuilder;
 }

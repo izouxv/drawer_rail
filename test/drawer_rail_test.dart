@@ -369,6 +369,47 @@ void main() {
       expect(controller.selectedId, isNull);
     });
 
+    testWidgets('supports an inline collapsed group representation', (
+      tester,
+    ) async {
+      controller.setCollapsed(true);
+      await tester.pumpWidget(
+        _wrap(
+          DrawerRail(
+            controller: controller,
+            showSearch: false,
+            entries: [
+              DrawerGroup(
+                id: 'sources',
+                label: 'Sources',
+                collapsedBuilder: (context, expanded, onToggle) => TextButton(
+                  key: const ValueKey('inline-group-toggle'),
+                  onPressed: onToggle,
+                  child: Text('Sources: $expanded'),
+                ),
+                children: [
+                  DrawerLink(
+                    id: 'source-a',
+                    icon: Icons.storage_outlined,
+                    label: 'Source A',
+                    onTap: (_) {},
+                    collapsedBuilder: (_, __) => const Text(
+                      'Inline source',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.text('Inline source'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('inline-group-toggle')));
+      await tester.pump();
+      expect(find.text('Inline source'), findsOneWidget);
+    });
+
     // Finds the drawer's own outer container: the one whose border radius has
     // a single rounded side (the AnimatedPressCard containers round all sides).
     BorderRadius drawerEdgeRadius(WidgetTester tester) {
