@@ -189,7 +189,8 @@ class _DrawerRailState extends State<DrawerRail> {
                       if (widget.showSearch) _buildSearch(collapsed, theme),
                       Expanded(child: _buildMenu(collapsed, theme)),
                       if (widget.footerBuilder != null) ...[
-                        if (widget.showFooterDivider) const Divider(height: 1),
+                        if (widget.showFooterDivider)
+                          Divider(height: 1, color: theme.footerDividerColor),
                         widget.footerBuilder!(context, collapsed),
                       ],
                     ],
@@ -382,9 +383,8 @@ class _DrawerRailState extends State<DrawerRail> {
   }) {
     if (link.expandedBuilder != null) {
       return Padding(
-        padding: EdgeInsets.only(
-          bottom: 2,
-          left: indent ? theme.groupChildIndent : 0,
+        padding: theme.linkOuterPadding.add(
+          EdgeInsets.only(left: indent ? theme.groupChildIndent : 0),
         ),
         child: link.expandedBuilder!(context, isSelected),
       );
@@ -394,14 +394,14 @@ class _DrawerRailState extends State<DrawerRail> {
     final baseStyle =
         isSelected ? theme.selectedLabelTextStyle : theme.labelTextStyle;
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: 2,
-        left: indent ? theme.groupChildIndent : 0,
+      padding: theme.linkOuterPadding.add(
+        EdgeInsets.only(left: indent ? theme.groupChildIndent : 0),
       ),
       child: AnimatedPressCard(
         onTap: () => _openLink(link),
         pressedScale: theme.pressedScale,
         hoverEffect: theme.hoverEffect,
+        hoverAnimationDuration: theme.hoverAnimationDuration,
         hoverShadowColor: theme.hoverShadowColor,
         hoverHighlightColor: theme.hoverHighlightColor,
         surfaceColor: theme.backgroundColor,
@@ -444,6 +444,7 @@ class _DrawerRailState extends State<DrawerRail> {
       child: Icon(
         open ? theme.groupTrailingIcon : theme.groupCollapsedIcon,
         key: ValueKey(open),
+        size: theme.groupArrowIconSize,
         color: theme.surfaceVariantColor,
       ),
     );
@@ -455,6 +456,7 @@ class _DrawerRailState extends State<DrawerRail> {
             onTap: () => _controller.toggleGroup(group.id),
             pressedScale: theme.pressedScale,
             hoverEffect: theme.hoverEffect,
+            hoverAnimationDuration: theme.hoverAnimationDuration,
             hoverShadowColor: theme.hoverShadowColor,
             hoverHighlightColor: theme.hoverHighlightColor,
             surfaceColor: theme.backgroundColor,
@@ -652,6 +654,7 @@ class _RailButton extends StatelessWidget {
           onTap: onTap,
           pressedScale: theme.pressedScale,
           hoverEffect: theme.hoverEffect,
+          hoverAnimationDuration: theme.hoverAnimationDuration,
           hoverShadowColor: theme.hoverShadowColor,
           hoverHighlightColor: theme.hoverHighlightColor,
           surfaceColor: theme.backgroundColor,

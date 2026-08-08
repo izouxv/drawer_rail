@@ -44,6 +44,7 @@ class DrawerRailTheme {
     this.animationDuration = const Duration(milliseconds: 240),
     this.animationCurve = Curves.easeOutCubic,
     this.groupAnimationDuration = const Duration(milliseconds: 200),
+    this.hoverAnimationDuration = const Duration(milliseconds: 200),
     this.iconSize = 20,
     this.railIconSize = 22,
     this.railItemHeight = 44,
@@ -55,9 +56,11 @@ class DrawerRailTheme {
     ),
     this.headerPadding = const EdgeInsets.fromLTRB(16, 12, 8, 8),
     this.itemPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.linkOuterPadding = const EdgeInsets.only(bottom: 2),
     this.groupOuterPadding = const EdgeInsets.only(bottom: 2),
     this.groupPadding,
     this.groupHeight,
+    this.groupArrowIconSize = 20,
     this.groupChildIndent = 24,
     this.backgroundColor,
     this.selectedColor,
@@ -72,6 +75,7 @@ class DrawerRailTheme {
     this.hoverEffect = DrawerHoverEffect.shadow,
     this.hoverShadowColor,
     this.hoverHighlightColor,
+    this.footerDividerColor,
     this.shadow,
     this.labelTextStyle,
     this.groupLabelTextStyle,
@@ -111,6 +115,12 @@ class DrawerRailTheme {
   /// How long a group takes to expand/collapse and its chevron to rotate.
   final Duration groupAnimationDuration;
 
+  /// How long an item's hover background transition runs.
+  ///
+  /// Set this to [Duration.zero] when a host sidebar needs an immediate,
+  /// non-animated hover color change.
+  final Duration hoverAnimationDuration;
+
   /// The size of item icons in the expanded panel. Defaults to `20`.
   final double iconSize;
 
@@ -135,6 +145,11 @@ class DrawerRailTheme {
   /// Inner padding of each link/group tile in the expanded panel.
   final EdgeInsetsGeometry itemPadding;
 
+  /// Margin around each expanded link row.
+  ///
+  /// This applies to both built-in links and host-provided expanded builders.
+  final EdgeInsetsGeometry linkOuterPadding;
+
   /// Margin around an expanded group header. Use this to align a group with
   /// app-owned link rows that add their own outer inset.
   final EdgeInsetsGeometry groupOuterPadding;
@@ -144,6 +159,9 @@ class DrawerRailTheme {
 
   /// Optional fixed height for an expanded group header.
   final double? groupHeight;
+
+  /// Size of the disclosure arrow used by an expanded group header.
+  final double groupArrowIconSize;
 
   /// The left indentation of a group's child links in the expanded panel.
   final double groupChildIndent;
@@ -199,6 +217,11 @@ class DrawerRailTheme {
   /// is [DrawerHoverEffect.highlight]. Defaults to a subtle translucent
   /// [ColorScheme.primary].
   final Color? hoverHighlightColor;
+
+  /// Color of the optional divider above the fixed footer.
+  ///
+  /// Defaults to [ColorScheme.outlineVariant].
+  final Color? footerDividerColor;
 
   /// The shadow cast by the drawer. Defaults to a soft shadow on the outer
   /// edge (see [position]).
@@ -260,6 +283,7 @@ class DrawerRailTheme {
       animationDuration: animationDuration,
       animationCurve: animationCurve,
       groupAnimationDuration: groupAnimationDuration,
+      hoverAnimationDuration: hoverAnimationDuration,
       iconSize: iconSize,
       railIconSize: railIconSize,
       railItemHeight: railItemHeight,
@@ -268,9 +292,11 @@ class DrawerRailTheme {
       contentPadding: contentPadding,
       headerPadding: headerPadding,
       itemPadding: itemPadding,
+      linkOuterPadding: linkOuterPadding,
       groupOuterPadding: groupOuterPadding,
       groupPadding: groupPadding ?? itemPadding,
       groupHeight: groupHeight,
+      groupArrowIconSize: groupArrowIconSize,
       groupChildIndent: groupChildIndent,
       backgroundColor: backgroundColor ?? scheme.surface,
       selectedColor: resolvedSelected,
@@ -291,6 +317,7 @@ class DrawerRailTheme {
           hoverShadowColor ?? scheme.primary.withValues(alpha: 0.12),
       hoverHighlightColor:
           hoverHighlightColor ?? scheme.primary.withValues(alpha: 0.08),
+      footerDividerColor: footerDividerColor ?? scheme.outlineVariant,
       labelTextStyle: baseLabel,
       groupLabelTextStyle: groupLabelTextStyle ?? baseLabel,
       selectedLabelTextStyle: selectedLabelTextStyle ?? baseLabel,
@@ -337,6 +364,7 @@ class ResolvedDrawerRailTheme {
     required this.animationDuration,
     required this.animationCurve,
     required this.groupAnimationDuration,
+    required this.hoverAnimationDuration,
     required this.iconSize,
     required this.railIconSize,
     required this.railItemHeight,
@@ -345,9 +373,11 @@ class ResolvedDrawerRailTheme {
     required this.contentPadding,
     required this.headerPadding,
     required this.itemPadding,
+    required this.linkOuterPadding,
     required this.groupOuterPadding,
     required this.groupPadding,
     required this.groupHeight,
+    required this.groupArrowIconSize,
     required this.groupChildIndent,
     required this.backgroundColor,
     required this.selectedColor,
@@ -366,6 +396,7 @@ class ResolvedDrawerRailTheme {
     required this.hoverEffect,
     required this.hoverShadowColor,
     required this.hoverHighlightColor,
+    required this.footerDividerColor,
     required this.labelTextStyle,
     required this.groupLabelTextStyle,
     required this.selectedLabelTextStyle,
@@ -404,6 +435,9 @@ class ResolvedDrawerRailTheme {
   /// See [DrawerRailTheme.groupAnimationDuration].
   final Duration groupAnimationDuration;
 
+  /// See [DrawerRailTheme.hoverAnimationDuration].
+  final Duration hoverAnimationDuration;
+
   /// See [DrawerRailTheme.iconSize].
   final double iconSize;
 
@@ -428,6 +462,9 @@ class ResolvedDrawerRailTheme {
   /// See [DrawerRailTheme.itemPadding].
   final EdgeInsetsGeometry itemPadding;
 
+  /// See [DrawerRailTheme.linkOuterPadding].
+  final EdgeInsetsGeometry linkOuterPadding;
+
   /// See [DrawerRailTheme.groupOuterPadding].
   final EdgeInsetsGeometry groupOuterPadding;
 
@@ -436,6 +473,9 @@ class ResolvedDrawerRailTheme {
 
   /// See [DrawerRailTheme.groupHeight].
   final double? groupHeight;
+
+  /// See [DrawerRailTheme.groupArrowIconSize].
+  final double groupArrowIconSize;
 
   /// See [DrawerRailTheme.groupChildIndent].
   final double groupChildIndent;
@@ -490,6 +530,9 @@ class ResolvedDrawerRailTheme {
 
   /// The resolved hover highlight color.
   final Color hoverHighlightColor;
+
+  /// The resolved divider color above the fixed footer.
+  final Color footerDividerColor;
 
   /// The resolved base label style (color applied per state).
   final TextStyle labelTextStyle;

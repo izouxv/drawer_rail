@@ -53,6 +53,25 @@ void main() {
     });
   });
 
+  group('DrawerRailTheme', () {
+    test('resolves compact host-sidebar interaction settings', () {
+      const divider = Color(0xff123456);
+      final theme = const DrawerRailTheme(
+        linkOuterPadding: EdgeInsets.zero,
+        groupOuterPadding: EdgeInsets.zero,
+        groupArrowIconSize: 18,
+        hoverAnimationDuration: Duration.zero,
+        footerDividerColor: divider,
+      ).resolve(const ColorScheme.light());
+
+      expect(theme.linkOuterPadding, EdgeInsets.zero);
+      expect(theme.groupOuterPadding, EdgeInsets.zero);
+      expect(theme.groupArrowIconSize, 18);
+      expect(theme.hoverAnimationDuration, Duration.zero);
+      expect(theme.footerDividerColor, divider);
+    });
+  });
+
   group('DrawerRail widget', () {
     late DrawerRailController controller;
 

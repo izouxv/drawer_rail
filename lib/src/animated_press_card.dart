@@ -17,6 +17,7 @@ class AnimatedPressCard extends StatefulWidget {
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
     this.pressedScale = 0.97,
     this.hoverEffect = DrawerHoverEffect.shadow,
+    this.hoverAnimationDuration = const Duration(milliseconds: 200),
     this.hoverShadowColor,
     this.hoverHighlightColor,
     this.surfaceColor,
@@ -37,6 +38,9 @@ class AnimatedPressCard extends StatefulWidget {
   /// Which visual feedback to show on hover. Defaults to
   /// [DrawerHoverEffect.shadow].
   final DrawerHoverEffect hoverEffect;
+
+  /// How long the hover background transition runs.
+  final Duration hoverAnimationDuration;
 
   /// The color of the soft shadow shown on hover, used when [hoverEffect] is
   /// [DrawerHoverEffect.shadow]. Defaults to a translucent [ColorScheme.primary].
@@ -110,7 +114,7 @@ class _AnimatedPressCardState extends State<AnimatedPressCard>
           builder: (context, child) => Transform.scale(
             scale: _scale.value,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: widget.hoverAnimationDuration,
               curve: Curves.easeOut,
               decoration: _decoration(context),
               child: child,
